@@ -1,1 +1,1 @@
-# PrjJpa03
+# SpringJpa3
