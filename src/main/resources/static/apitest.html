@@ -6,12 +6,13 @@
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
 <style>
 	h2, h3 { text-align: center;}
+	h3     { margin-top :30px; }
 	#container { 
 	    display : flex;
 	    justify-content: space-around;
 	}
 	#box1 {
-	    width: 50%; 
+	    width: 60%; 
 	    border: 2px solid black;
 	    border-radius : 10px;
 	    padding: 10px;
@@ -22,25 +23,23 @@
 	    border-radius : 10px;
 	    padding: 10px; 
 	}
+	
+	tr       { background: '';  }
+	tr:hover { background: aqua;  }
 
 </style>
 </head>
 <body>
-	<h2>Article Rest Api Test</h2>
+	<h2 class="bg-primary text-white fw-bold mt-4 mb-3">Article Rest Api Test</h2>
 	<div id="container">
 	  <div id="box1">
-        <form >
+        <form>
 		  <div class="row mb-3">
+		    <!-- col-sm-2 : 2/12, col-sm-10 : 10/12 -->
 		    <label for="id"    class="col-form-label col-sm-2">아이디</label>
 		    <div class="col-sm-10">
 		       <input type="text" class="form-control" id="id" >
 		    </div>		    
-		  </div>
-		  <div class="row mb-3">
-		    <label for="id2"    class="col-form-label col-sm-2">수정할 아이디</label>
-		    <div class="col-sm-10">
-		      <input type="text"  class="form-control col-sm-10" id="id2" >
-		    </div>  		    
 		  </div>
 		  <div class="row mb-3">
 		    <label for="title"   class="col-form-label col-sm-2">제목</label>
@@ -82,7 +81,7 @@
 	  </div>
 	</div>
 	
-	<h3>결과</h3>
+	<h3 class="bg-secondary text-white border-bottom pb-2">결과</h3>
 	<div id="result" style="margin-bottom:150px" ></div>
 	
 	<!-- script 영역  ECMA Script 6 -->
@@ -109,23 +108,35 @@
 		   return  table;
 	   }
 	   
-	   function activeClear(aEls) {
+	   function activeClear( aEls ) {
 		   
 		   aEls.forEach( ( aEl ) => {
 			   aEl.classList.remove('active')
 		   })
 		   
 	   }
+	   
+	   function  textClear() {
+		   let els  =  document.querySelectorAll('[class="form-control"]') 
+		   els.forEach( (el) => {
+			   el.value = ''
+		   }) 
+	   }
 	</script>
 	
 	<script>
 	   //  a tag  클릭시 동작
-	   const  aEls     =  document.querySelectorAll('a')   //  a tag 뱌열
-	   const  resultEl =  document.querySelector('#result');
+	   const  aEls      =  document.querySelectorAll('a')   //  a tag 뱌열
+	   const  resultEl  =  document.querySelector('#result');
+	   const  idEl      =  document.querySelector('#id');	
+	   const  titleEl   =  document.querySelector('#title');
+	   const  contentEl =  document.querySelector('#content');
+	   
 	   aEls.forEach(function( a ) {
+		   // a tag click 이벤트 
 		   a.onclick = function( event ) {
-			   activeClear(aEls)	
-			   a.classList.add('active')			  
+			   activeClear( aEls )	   // 모든 a tag 에 active class 제거
+			   a.classList.add('active')	 // class="" -> js classList 		  
 			   
 			   event.preventDefault();   // a tag 의 기본이벤트(href 로 이동)를 취소  
 			   event.stopPropagation();  // 이벤트 버블링을 중지
@@ -133,20 +144,61 @@
 			   console.log(a);
 			   //alert(a.innerHTML)
 			   switch(a.id) {
-			   case 'getlist':    
+			   case 'getlist':     // 목록조회 
 				   // api controller 실행데이터 받아온다(fetch)
-				   fetch( a.href )
+			        fetch( a.href  )
 				     .then( response => response.json() )
 				     .then( list     => {
-				    	 console.log(list)
+				    //	 console.log(list)
 				    	 resultEl.innerHTML = makeTable( list )
 				     }  )
 				     .then(error => console.log(error) )
-				   break;			  
-			   }
-		   }
-	   })
+				   break;
+				   
+			   case 'post':     // 추가
+			       if( titleEl.value.trim() == ''  ) {
+			    	   alert('제목을 입력하세요')
+			    	   break;   
+			       }
+				   fetch( a.href , {
+					   method: 'POST',
+					   body: JSON.stringify({     // 서버 data 를 보낼떄 json 문자열로 전송
+					     title  : titleEl.value,
+					     content: contentEl.value
+					   }),
+					   headers: {
+					     'Content-type': 'application/json; charset=UTF-8',
+					   },
+					 })
+					   .then((response) => response.json())
+					   .then((json) => {
+					//	   console.log(json)
+						   textClear();
+						   aEls[0].click()
+					   });  // 추가완료
+				   break;	   
+			   } // switch end
+		   } // a.onclick end
+		   
+	   }) // aEls.foreach end
 	
+	   
+	   // #result 안에 tr을 클릭하면 undefinded error 
+	   // js 동적 생성 이벤트 호출
+	   // <a>목록조회</a> 를 클릭한 후에  table 이 생성된다
+	   // 해결책은 조상Element  에 이벤ㅂ를 등록한다
+	   const  divEl  = document.querySelector('#result')	   
+	   //console.dir( divEl )
+	   //console.log('jajaja')
+	   divEl.ondblclick = function( e ) {
+		   //console.dir(e)  // e.target == td
+		   let  tr          =  e.target.parentElement // ==  e.target.parentNode
+		   let  tds         =  tr.childNodes
+		   idEl.value       =  tds[0].innerHTML
+		   titleEl.value    =  tds[1].innerHTML
+		   contentEl.value  =  tds[2].innerHTML
+	   }
+	   
 	</script>
 	
 </body>

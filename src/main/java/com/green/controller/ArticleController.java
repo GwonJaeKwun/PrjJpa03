@@ -66,7 +66,7 @@ public class ArticleController {
 		// 해결책 1
 		//List<Article> articleList = (List<Article>) articleRepository.findAll();
 		
-		// 해결책 2 : 비추
+		// 해결책 2 : 비추 
 		// Iterable<Article>  articleEntityList = articleRepository.findAll();
 				
 		// 해결책 3 : 우리가 사용할 방법
@@ -77,7 +77,7 @@ public class ArticleController {
 		//model.addAttribute("cont", articleList.get(0).getContent()); 
 		model.addAttribute("articleList",  articleList );
 		
-		return "article/list";    //  templates/article/list.mustache
+		return  "article/list";    //  templates/article/list.mustache
 	}
 	
 	//  주소줄에 조회할 글 번호(10) 를 넣어서 조회 
